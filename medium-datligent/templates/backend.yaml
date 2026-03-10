@@ -21,12 +21,15 @@ spec:
             - containerPort: 8000
           env:
             - name: DATABASE_URL
-              value: "postgresql://{{ .Values.db.user }}:{{ .Values.db.password }}@{{ .Release.Name }}-db:5432/{{ .Values.db.name }}"
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-db-secret
+                  key: DATABASE_URL
           resources:
             {{- toYaml .Values.backend.resources | nindent 12 }}
           livenessProbe:
             httpGet:
-              path: /health  # Assurez-vous que ce endpoint existe dans votre backend
+              path: /health
               port: 8000
             initialDelaySeconds: 15
             periodSeconds: 20

@@ -43,6 +43,7 @@ workers:
   modelName: gemma3
   scheduleTime: "08:30"
   dbupdaterSchedule: "0 9 * * *"
+  ollamaBaseUrl: "http://ollama-service.default.svc.cluster.local:11434/v1"
   resources:
     requests:
       cpu: "200m"

@@ -33,12 +33,21 @@ spec:
                     echo "Aucun fichier d'update SQL trouvé."
                   fi
               env:
+                - name: PGPASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ .Release.Name }}-db-secret
+                      key: POSTGRES_PASSWORD
                 - name: POSTGRES_USER
-                  value: {{ .Values.db.user | quote }}
-                - name: POSTGRES_PASSWORD
-                  value: {{ .Values.db.password | quote }}
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ .Release.Name }}-db-secret
+                      key: POSTGRES_USER
                 - name: POSTGRES_DB
-                  value: {{ .Values.db.name | quote }}
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ .Release.Name }}-db-secret
+                      key: POSTGRES_DB
               volumeMounts:
                 - name: shared-data
                   mountPath: /app/updates

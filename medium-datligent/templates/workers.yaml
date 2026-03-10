@@ -4,7 +4,7 @@ metadata:
   name: {{ .Release.Name }}-shared-pvc
 spec:
   accessModes:
-    - ReadWriteOnce
+    - ReadWriteMany
   resources:
     requests:
       storage: {{ .Values.workers.sharedStorage }}
@@ -34,8 +34,7 @@ spec:
             - name: RUN_ON_STARTUP
               value: "true"
             - name: BASE_URL
-              # Point this to a valid LLM service url in your cluster (e.g., vLLM or Ollama on OCP route/service)
-              value: "http://ollama-service.default.svc.cluster.local:11434/v1"
+              value: {{ .Values.workers.ollamaBaseUrl | quote }}
             - name: MODEL_NAME
               value: {{ .Values.workers.modelName | quote }}
           volumeMounts:
@@ -44,6 +43,15 @@ spec:
               subPath: updates
           resources:
             {{- toYaml .Values.workers.resources | nindent 12 }}
+          livenessProbe:
+            exec:
+              command:
+                - sh
+                - -c
+                - "test -e /proc/1/status"
+            initialDelaySeconds: 30
+            periodSeconds: 60
+            failureThreshold: 3
 
       volumes:
         - name: shared-data
