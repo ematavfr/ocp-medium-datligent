@@ -23,7 +23,7 @@ spec:
           ports:
             - containerPort: 3000
           env:
-            - name: BACKEND_URL
+            - name: NEXT_PUBLIC_BACKEND_URL
               value: "https://backend-{{ .Release.Namespace }}.{{ .Values.global.domain }}"
           resources:
             {{- toYaml .Values.frontend.resources | nindent 12 }}
