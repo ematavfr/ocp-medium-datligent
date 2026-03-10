@@ -1,0 +1,51 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ .Release.Name }}-shared-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .Values.workers.sharedStorage }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-workers
+  labels:
+    app: {{ .Release.Name }}-workers
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-workers
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-workers
+    spec:
+      containers:
+        - name: ingestor
+          image: {{ .Values.workers.ingestor_image }}
+          env:
+            - name: SCHEDULE_TIME
+              value: {{ .Values.workers.scheduleTime | quote }}
+            - name: RUN_ON_STARTUP
+              value: "true"
+            - name: BASE_URL
+              # Point this to a valid LLM service url in your cluster (e.g., vLLM or Ollama on OCP route/service)
+              value: "http://ollama-service.default.svc.cluster.local:11434/v1"
+            - name: MODEL_NAME
+              value: {{ .Values.workers.modelName | quote }}
+          volumeMounts:
+            - name: shared-data
+              mountPath: /app/updates
+              subPath: updates
+          resources:
+            {{- toYaml .Values.workers.resources | nindent 12 }}
+
+      volumes:
+        - name: shared-data
+          persistentVolumeClaim:
+            claimName: {{ .Release.Name }}-shared-pvc

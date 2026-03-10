@@ -1,0 +1,52 @@
+global:
+  domain: apps-crc.testing # Default CRC wildcard domain
+
+db:
+  image: postgres:15-alpine
+  user: medium_user
+  password: medium_password
+  name: medium_db
+  storage: 1Gi
+  resources:
+    requests:
+      cpu: "100m"
+      memory: "256Mi"
+    limits:
+      cpu: "500m"
+      memory: "512Mi"
+
+backend:
+  image: medium-backend:latest
+  replicas: 1
+  resources:
+    requests:
+      cpu: "100m"
+      memory: "256Mi"
+    limits:
+      cpu: "500m"
+      memory: "512Mi"
+
+frontend:
+  image: medium-frontend:latest
+  replicas: 1
+  resources:
+    requests:
+      cpu: "100m"
+      memory: "128Mi"
+    limits:
+      cpu: "300m"
+      memory: "256Mi"
+
+workers:
+  ingestor_image: medium-ingestor:latest
+  sharedStorage: 1Gi
+  modelName: gemma3
+  scheduleTime: "08:30"
+  dbupdaterSchedule: "0 9 * * *"
+  resources:
+    requests:
+      cpu: "200m"
+      memory: "256Mi"
+    limits:
+      cpu: "500m"
+      memory: "512Mi"

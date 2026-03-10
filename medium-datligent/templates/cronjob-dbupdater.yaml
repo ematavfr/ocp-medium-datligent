@@ -1,0 +1,49 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ .Release.Name }}-dbupdater-cronjob
+spec:
+  schedule: {{ .Values.workers.dbupdaterSchedule | quote }}
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      backoffLimit: 3
+      template:
+        spec:
+          restartPolicy: OnFailure
+          containers:
+            - name: dbupdater
+              image: postgres:15-alpine
+              command:
+                - /bin/sh
+                - -c
+                - |
+                  echo "Recherche de fichiers SQL dans /app/updates..."
+                  if ls /app/updates/*.sql 1> /dev/null 2>&1; then
+                    for file in /app/updates/*.sql; do
+                      if [ -f "$file" ]; then
+                        echo "Exécution de $file..."
+                        psql -h {{ .Release.Name }}-db -U $POSTGRES_USER -d $POSTGRES_DB -f "$file" || exit 1
+                        echo "Suppression de $file pour éviter une double exécution..."
+                        rm "$file"
+                      fi
+                    done
+                    echo "Mise à jour terminée."
+                  else
+                    echo "Aucun fichier d'update SQL trouvé."
+                  fi
+              env:
+                - name: POSTGRES_USER
+                  value: {{ .Values.db.user | quote }}
+                - name: POSTGRES_PASSWORD
+                  value: {{ .Values.db.password | quote }}
+                - name: POSTGRES_DB
+                  value: {{ .Values.db.name | quote }}
+              volumeMounts:
+                - name: shared-data
+                  mountPath: /app/updates
+                  subPath: updates
+          volumes:
+            - name: shared-data
+              persistentVolumeClaim:
+                claimName: {{ .Release.Name }}-shared-pvc
