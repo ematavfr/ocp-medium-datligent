@@ -2,7 +2,7 @@ global:
   domain: apps-crc.testing # Default CRC wildcard domain
 
 db:
-  image: postgres:15-alpine
+  image: docker.io/library/postgres:15-alpine
   user: medium_user
   password: medium_password
   name: medium_db
@@ -16,7 +16,7 @@ db:
       memory: "512Mi"
 
 backend:
-  image: medium-backend:latest
+  image: image-registry.openshift-image-registry.svc:5000/medium-datligent/medium-backend:latest
   replicas: 1
   resources:
     requests:
@@ -27,7 +27,7 @@ backend:
       memory: "512Mi"
 
 frontend:
-  image: medium-frontend:latest
+  image: image-registry.openshift-image-registry.svc:5000/medium-datligent/medium-frontend:latest
   replicas: 1
   resources:
     requests:
@@ -38,7 +38,7 @@ frontend:
       memory: "256Mi"
 
 workers:
-  ingestor_image: medium-ingestor:latest
+  ingestor_image: image-registry.openshift-image-registry.svc:5000/medium-datligent/medium-ingestor:latest
   sharedStorage: 1Gi
   modelName: gemma3
   scheduleTime: "08:30"

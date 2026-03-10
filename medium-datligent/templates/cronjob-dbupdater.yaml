@@ -13,7 +13,7 @@ spec:
           restartPolicy: OnFailure
           containers:
             - name: dbupdater
-              image: postgres:15-alpine
+              image: docker.io/library/postgres:15-alpine
               command:
                 - /bin/sh
                 - -c

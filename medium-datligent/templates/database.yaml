@@ -46,6 +46,18 @@ spec:
       labels:
         app: {{ .Release.Name }}-db
     spec:
+      securityContext:
+        runAsUser: 70
+        fsGroup: 70
+      initContainers:
+        - name: init-db-permissions
+          image: docker.io/library/busybox:latest
+          command: ['sh', '-c', 'chown -R 70:70 /var/lib/postgresql/data']
+          securityContext:
+            runAsUser: 0
+          volumeMounts:
+            - name: db-data
+              mountPath: /var/lib/postgresql/data
       containers:
         - name: postgres
           image: {{ .Values.db.image }}
