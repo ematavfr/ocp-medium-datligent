@@ -25,6 +25,8 @@ spec:
                 secretKeyRef:
                   name: {{ .Release.Name }}-db-secret
                   key: DATABASE_URL
+            - name: CORS_ORIGIN
+              value: "https://frontend-{{ .Release.Namespace }}.{{ .Values.global.domain }}"
           resources:
             {{- toYaml .Values.backend.resources | nindent 12 }}
           livenessProbe:

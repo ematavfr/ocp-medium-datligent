@@ -32,10 +32,10 @@ frontend:
   resources:
     requests:
       cpu: "100m"
-      memory: "128Mi"
+      memory: "512Mi"
     limits:
-      cpu: "300m"
-      memory: "256Mi"
+      cpu: "500m"
+      memory: "1Gi"
 
 workers:
   ingestor_image: image-registry.openshift-image-registry.svc:5000/medium-datligent/medium-ingestor:latest
